@@ -61,6 +61,18 @@ def format_errors(error_list):
     else:
         return unicode(error_list)
 
+class NoLabelSuffixForm(forms.Form):
+    """Form subclass to make label_suffix default to blank"""
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault('label_suffix', '')
+        return super(NoLabelSuffixForm, self).__init__(*args, **kwargs)
+
+class NoLabelSuffixModelForm(forms.ModelForm):
+    """ModelForm subclass to make label_suffix default to blank"""
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault('label_suffix', '')
+        return super(NoLabelSuffixModelForm, self).__init__(*args, **kwargs)
+
 class StrippedNonEmptyCharField(forms.CharField):
     def clean(self, value):
         value = value.strip()
@@ -276,7 +288,7 @@ class UserEmailField(forms.EmailField):
             logging.critical('email taken many times over')
             raise forms.ValidationError(self.error_messages['taken'])
 
-class SetPasswordForm(forms.Form):
+class SetPasswordForm(NoLabelSuffixForm):
     password1 = forms.CharField(
                             widget=forms.PasswordInput(
                                 attrs=login_form_widget_attrs,

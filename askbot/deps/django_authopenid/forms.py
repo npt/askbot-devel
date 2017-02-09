@@ -39,7 +39,7 @@ from django.conf import settings as django_settings
 from askbot.conf import settings as askbot_settings
 from askbot import const as askbot_const
 from askbot.forms import AskbotReCaptchaField
-from askbot.utils.forms import NextUrlField, UserNameField, UserEmailField, SetPasswordForm
+from askbot.utils.forms import NoLabelSuffixForm, NextUrlField, UserNameField, UserEmailField, SetPasswordForm
 from askbot.utils.loading import load_module
 
 # needed for some linux distributions like debian
@@ -87,7 +87,7 @@ class LoginProviderField(forms.CharField):
             logging.critical(error_message)
             raise forms.ValidationError(error_message)
 
-class OpenidSigninForm(forms.Form):
+class OpenidSigninForm(NoLabelSuffixForm):
     """ signin form """
     openid_url = forms.CharField(max_length=255, widget=forms.widgets.TextInput(attrs={'class': 'openid-login-input', 'size':80}))
     next = NextUrlField()
@@ -103,7 +103,7 @@ class OpenidSigninForm(forms.Form):
             return self.cleaned_data['openid_url']
 
 
-class LoginForm(forms.Form):
+class LoginForm(NoLabelSuffixForm):
     """All-inclusive login form.
 
     handles the following:
@@ -299,7 +299,7 @@ class LoginForm(forms.Form):
             raise forms.ValidationError(error_message)
 
 
-class OpenidRegisterForm(forms.Form):
+class OpenidRegisterForm(NoLabelSuffixForm):
     """ openid signin form """
     next = NextUrlField()
     username = UserNameField(widget_attrs={'tabindex': 0})
@@ -351,7 +351,7 @@ class SafeClassicRegisterForm(ClassicRegisterForm):
         self.fields['recaptcha'] = AskbotReCaptchaField()
 
 
-class ChangePasswordForm(forms.Form):
+class ChangePasswordForm(NoLabelSuffixForm):
     """ change password form """
     new_password = forms.CharField(
                         widget=forms.PasswordInput(),
@@ -387,7 +387,7 @@ class ChangePasswordForm(forms.Form):
         return self.cleaned_data
 
 
-class ChangeEmailForm(forms.Form):
+class ChangeEmailForm(NoLabelSuffixForm):
     """ change email form """
     def __init__(self, data=None, files=None, auto_id='id_%s', prefix=None, \
             initial=None, user=None):
@@ -414,7 +414,7 @@ class ChangeEmailForm(forms.Form):
                 in our database. Please choose another.')
 
 
-class AccountRecoveryForm(forms.Form):
+class AccountRecoveryForm(NoLabelSuffixForm):
     """with this form user enters email address and
     receives an account recovery link in email
 
@@ -438,7 +438,7 @@ class AccountRecoveryForm(forms.Form):
                 raise forms.ValidationError(message)
 
 
-class ChangeopenidForm(forms.Form):
+class ChangeopenidForm(NoLabelSuffixForm):
     """ change openid form """
     openid_url = forms.CharField(max_length=255,
             widget=forms.TextInput(attrs={'class': "required" }))
@@ -450,7 +450,7 @@ class ChangeopenidForm(forms.Form):
         self.user = user
 
 
-class DeleteForm(forms.Form):
+class DeleteForm(NoLabelSuffixForm):
     """ confirm form to delete an account """
     #todo: i think this form is not used
     confirm = forms.CharField(widget=forms.CheckboxInput(attrs={'class':'required'}))
@@ -470,7 +470,7 @@ class DeleteForm(forms.Form):
         return self.cleaned_data['password']
 
 
-class EmailPasswordForm(forms.Form):
+class EmailPasswordForm(NoLabelSuffixForm):
     """ send new password form """
     username = UserNameField(
                     skip_clean=True,

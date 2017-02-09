@@ -19,6 +19,7 @@ from askbot.utils.translation import get_language
 from django.utils.text import get_text_list
 from django.contrib.auth.models import User
 from django_countries import countries
+from askbot.utils.forms import NoLabelSuffixForm, NoLabelSuffixModelForm
 from askbot.utils.forms import NextUrlField, UserNameField
 from askbot.utils.forms import moderated_email_validator
 from askbot.utils.slug import slugify
@@ -259,11 +260,11 @@ class LanguageField(forms.ChoiceField):
         super(LanguageField, self).__init__(*args, **kwargs)
 
 
-class LanguageForm(forms.Form):
+class LanguageForm(NoLabelSuffixForm):
     language = LanguageField()
 
 
-class LanguagePrefsForm(forms.Form):
+class LanguagePrefsForm(NoLabelSuffixForm):
     languages = forms.MultipleChoiceField(
                         widget=forms.CheckboxSelectMultiple,
                         choices=django_settings.LANGUAGES,
@@ -272,7 +273,7 @@ class LanguagePrefsForm(forms.Form):
                         choices=django_settings.LANGUAGES)
 
 
-class TranslateUrlForm(forms.Form):
+class TranslateUrlForm(NoLabelSuffixForm):
     language = LanguageField()
     url = forms.CharField(max_length=2048)
 
@@ -586,7 +587,7 @@ class SummaryField(forms.CharField):
             'field is optional')
 
 
-class EditorForm(forms.Form):
+class EditorForm(NoLabelSuffixForm):
     """form with one field - `editor`
     the field must be created dynamically, so it's added
     in the __init__() function"""
@@ -599,7 +600,7 @@ class EditorForm(forms.Form):
                                             user=user)
 
 
-class DumpUploadForm(forms.Form):
+class DumpUploadForm(NoLabelSuffixForm):
     """This form handles importing
     data into the forum. At the moment it only
     supports stackexchange import.
@@ -607,7 +608,7 @@ class DumpUploadForm(forms.Form):
     dump_file = forms.FileField()
 
 
-class ShowQuestionForm(forms.Form):
+class ShowQuestionForm(NoLabelSuffixForm):
     """Cleans data necessary to access answers and comments
     by the respective comment or answer id - necessary
     when comments would be normally wrapped and/or displayed
@@ -664,14 +665,14 @@ class ShowQuestionForm(forms.Form):
         return out_data
 
 
-class ShowTagsForm(forms.Form):
+class ShowTagsForm(NoLabelSuffixForm):
     page = PageField()
     sort = SortField(choices=const.TAGS_SORT_METHODS,
                      default=const.DEFAULT_TAGS_SORT_METHOD)
     query = forms.CharField(required=False)
 
 
-class ShowUsersForm(forms.Form):
+class ShowUsersForm(NoLabelSuffixForm):
     page = PageField()
     sort = SortField(choices=const.USER_SORT_METHODS,
                      default=const.DEFAULT_USER_SORT_METHOD)
@@ -684,7 +685,7 @@ class ShowUsersForm(forms.Form):
         return self.cleaned_data['sort']
 
 
-class ChangeUserReputationForm(forms.Form):
+class ChangeUserReputationForm(NoLabelSuffixForm):
     """Form that allows moderators and site administrators
     to adjust reputation of users.
 
@@ -718,7 +719,7 @@ ADMINISTRATOR_STATUS_CHOICES = (
 ) + MODERATOR_STATUS_CHOICES
 
 
-class ChangeUserStatusForm(forms.Form):
+class ChangeUserStatusForm(NoLabelSuffixForm):
     """form that allows moderators to change user's status
 
     the type of options displayed depend on whether user
@@ -824,7 +825,7 @@ class ChangeUserStatusForm(forms.Form):
         return self.cleaned_data
 
 
-class SendMessageForm(forms.Form):
+class SendMessageForm(NoLabelSuffixForm):
     subject_line = forms.CharField(
         label=_('Subject line'), max_length=64,
         widget=forms.TextInput(attrs={'size': 64}))
@@ -833,7 +834,7 @@ class SendMessageForm(forms.Form):
         widget=forms.Textarea(attrs={'cols': 64}))
 
 
-class FeedbackForm(forms.Form):
+class FeedbackForm(NoLabelSuffixForm):
     name = forms.CharField(label=_('Your name (optional):'), required=False)
     email = forms.EmailField(label=_('Email:'), required=False)
     message = forms.CharField(label=_('Your message:'),
@@ -896,7 +897,7 @@ class FormWithHideableFields(object):
             self.fields[name] = self.__hidden_fields.pop(name)
 
 
-class PostPrivatelyForm(forms.Form, FormWithHideableFields):
+class PostPrivatelyForm(NoLabelSuffixForm, FormWithHideableFields):
     """has a single field `post_privately` with
     two related methods"""
 
@@ -924,20 +925,20 @@ class PostPrivatelyForm(forms.Form, FormWithHideableFields):
         return self.cleaned_data['post_privately']
 
 
-class DraftQuestionForm(forms.Form):
+class DraftQuestionForm(NoLabelSuffixForm):
     """No real validation required for this form"""
     title = forms.CharField(required=False)
     text = forms.CharField(required=False)
     tagnames = forms.CharField(required=False)
 
 
-class DraftAnswerForm(forms.Form):
+class DraftAnswerForm(NoLabelSuffixForm):
     """Only thread_id is required"""
     thread_id = forms.IntegerField()
     text = forms.CharField(required=False)
 
 
-class PostAsSomeoneForm(forms.Form):
+class PostAsSomeoneForm(NoLabelSuffixForm):
     post_author_username = forms.CharField(
         initial=_('User name:'), required=False,
         help_text=_('Enter name to post on behalf of someone else. '
@@ -1057,7 +1058,7 @@ ASK_BY_EMAIL_SUBJECT_HELP = _(
 
 
 # widgetforms
-class AskWidgetForm(forms.Form, FormWithHideableFields):
+class AskWidgetForm(NoLabelSuffixForm, FormWithHideableFields):
     '''Simple form with just the title to ask a question'''
 
     ask_anonymously = forms.BooleanField(
@@ -1081,7 +1082,7 @@ class AskWidgetForm(forms.Form, FormWithHideableFields):
             self.fields['recaptcha'] = AskbotReCaptchaField()
 
 
-class CreateAskWidgetForm(forms.Form, FormWithHideableFields):
+class CreateAskWidgetForm(NoLabelSuffixForm, FormWithHideableFields):
     title = forms.CharField(max_length=100)
     include_text_field = forms.BooleanField(required=False)
 
@@ -1099,7 +1100,7 @@ class CreateAskWidgetForm(forms.Form, FormWithHideableFields):
             self.hide_field('group')
 
 
-class CreateQuestionWidgetForm(forms.Form, FormWithHideableFields):
+class CreateQuestionWidgetForm(NoLabelSuffixForm, FormWithHideableFields):
     title = forms.CharField(max_length=100)
     question_number = forms.CharField(initial='7')
     tagnames = forms.CharField(label=_('tags'), max_length=50)
@@ -1118,7 +1119,7 @@ class CreateQuestionWidgetForm(forms.Form, FormWithHideableFields):
             required=False)
 
 
-class AskByEmailForm(forms.Form):
+class AskByEmailForm(NoLabelSuffixForm):
     """:class:`~askbot.forms.AskByEmailForm`
     validates question data, where question was posted
     by email.
@@ -1227,7 +1228,7 @@ class AnswerForm(PostAsSomeoneForm, PostPrivatelyForm):
             ip_addr=ip_addr)
 
 
-class VoteForm(forms.Form):
+class VoteForm(NoLabelSuffixForm):
     """form used in ajax vote view (only comment_upvote so far)
     """
     post_id = forms.IntegerField()
@@ -1248,11 +1249,11 @@ class VoteForm(forms.Form):
         return self.cleaned_data['cancel_vote']
 
 
-class CloseForm(forms.Form):
+class CloseForm(NoLabelSuffixForm):
     reason = forms.ChoiceField(choices=const.CLOSE_REASONS)
 
 
-class RetagQuestionForm(forms.Form):
+class RetagQuestionForm(NoLabelSuffixForm):
 
     def __init__(self, question, *args, **kwargs):
         """initialize the default values"""
@@ -1261,7 +1262,7 @@ class RetagQuestionForm(forms.Form):
         self.fields['tags'].initial = question.thread.tagnames
 
 
-class RevisionForm(forms.Form):
+class RevisionForm(NoLabelSuffixForm):
     """
     Lists revisions of a Question or Answer
     """
@@ -1373,12 +1374,12 @@ class EditAnswerForm(PostAsSomeoneForm, PostPrivatelyForm):
             return False
 
 
-class EditTagWikiForm(forms.Form):
+class EditTagWikiForm(NoLabelSuffixForm):
     text = forms.CharField(required=False)
     tag_id = forms.IntegerField()
 
 
-class EditUserForm(forms.Form):
+class EditUserForm(NoLabelSuffixForm):
     email = forms.EmailField(
         label=u'Email', required=False, max_length=255,
         widget=forms.TextInput(attrs={'size': 35}))
@@ -1465,7 +1466,7 @@ class EditUserForm(forms.Form):
         return self.cleaned_data['email']
 
 
-class TagFilterSelectionForm(forms.ModelForm):
+class TagFilterSelectionForm(NoLabelSuffixModelForm):
     email_tag_filter_strategy = forms.ChoiceField(
         initial=const.EXCLUDE_IGNORED, label=_('Choose email tag filter'),
         widget=forms.RadioSelect)
@@ -1493,7 +1494,7 @@ class EmailFeedSettingField(forms.ChoiceField):
         super(EmailFeedSettingField, self).__init__(*arg, **kwarg)
 
 
-class EditUserEmailFeedsForm(forms.Form):
+class EditUserEmailFeedsForm(NoLabelSuffixForm):
     FORM_TO_MODEL_MAP = {
         'all_questions': 'q_all',
         'asked_by_me': 'q_ask',
@@ -1616,7 +1617,7 @@ class SubscribeForEmailUpdatesField(forms.ChoiceField):
         super(SubscribeForEmailUpdatesField, self).__init__(**kwargs)
 
 
-class SimpleEmailSubscribeForm(forms.Form):
+class SimpleEmailSubscribeForm(NoLabelSuffixForm):
 
     def __init__(self, *args, **kwargs):
         super(SimpleEmailSubscribeForm, self).__init__(*args, **kwargs)
@@ -1635,18 +1636,18 @@ class SimpleEmailSubscribeForm(forms.Form):
         email_settings_form.save(user, save_unbound=True)
 
 
-class UnsubscribeForm(forms.Form):
+class UnsubscribeForm(NoLabelSuffixForm):
     key = forms.CharField(widget=forms.HiddenInput)
     email = forms.CharField(widget=forms.HiddenInput)  # Allow invalid email
 
 
-class GroupLogoURLForm(forms.Form):
+class GroupLogoURLForm(NoLabelSuffixForm):
     """form for saving group logo url"""
     group_id = forms.IntegerField()
     image_url = forms.CharField()
 
 
-class EditGroupMembershipForm(forms.Form):
+class EditGroupMembershipForm(NoLabelSuffixForm):
     """a form for adding or removing users
     to and from user groups"""
     user_id = forms.IntegerField()
@@ -1662,13 +1663,13 @@ class EditGroupMembershipForm(forms.Form):
         return action
 
 
-class EditRejectReasonForm(forms.Form):
+class EditRejectReasonForm(NoLabelSuffixForm):
     reason_id = forms.IntegerField(required=False)
     title = CountedWordsField(min_words=1, max_words=4, field_name=_('Title'))
     details = CountedWordsField(min_words=6, field_name=_('Description'))
 
 
-class ModerateTagForm(forms.Form):
+class ModerateTagForm(NoLabelSuffixForm):
     tag_id = forms.IntegerField()
     thread_id = forms.IntegerField(required=False)
     action = forms.CharField()
@@ -1679,12 +1680,12 @@ class ModerateTagForm(forms.Form):
         return action
 
 
-class ShareQuestionForm(forms.Form):
+class ShareQuestionForm(NoLabelSuffixForm):
     thread_id = forms.IntegerField()
     recipient_name = forms.CharField()
 
 
-class BulkTagSubscriptionForm(forms.Form):
+class BulkTagSubscriptionForm(NoLabelSuffixForm):
     date_added = forms.DateField(required=False, widget=forms.HiddenInput())
 
     def __init__(self, *args, **kwargs):
@@ -1696,7 +1697,7 @@ class BulkTagSubscriptionForm(forms.Form):
             self.fields['groups'] = forms.ModelMultipleChoiceField(queryset=Group.objects.exclude_personal())
 
 
-class GetDataForPostForm(forms.Form):
+class GetDataForPostForm(NoLabelSuffixForm):
     post_id = forms.IntegerField()
 
 
@@ -1704,22 +1705,22 @@ class GetCommentDataForPostForm(GetDataForPostForm):
     avatar_size = forms.IntegerField()
 
 
-class GetUserItemsForm(forms.Form):
+class GetUserItemsForm(NoLabelSuffixForm):
     page_size = forms.IntegerField(required=False)
     page_number = forms.IntegerField(min_value=1)
     user_id = forms.IntegerField()
 
 
-class UserForm(forms.Form):
+class UserForm(NoLabelSuffixForm):
     user_id = forms.IntegerField()
 
 
-class UserDescriptionForm(forms.Form):
+class UserDescriptionForm(NoLabelSuffixForm):
     user_id = forms.IntegerField()
     description = forms.CharField()
 
 
-class NewCommentForm(forms.Form):
+class NewCommentForm(NoLabelSuffixForm):
     comment = forms.CharField()
     post_id = forms.IntegerField()
     avatar_size = forms.IntegerField()
@@ -1730,22 +1731,22 @@ class NewCommentForm(forms.Form):
             max_length=askbot_settings.MAX_COMMENT_LENGTH)
 
 
-class EditCommentForm(forms.Form):
+class EditCommentForm(NoLabelSuffixForm):
     comment_id = forms.IntegerField()
     comment = forms.CharField()
     avatar_size = forms.IntegerField()
     suppress_email = SuppressEmailField()
 
 
-class ProcessCommentForm(forms.Form):
+class ProcessCommentForm(NoLabelSuffixForm):
     comment_id = forms.IntegerField()
     avatar_size = forms.IntegerField()
 
 
-class ConvertCommentForm(forms.Form):
+class ConvertCommentForm(NoLabelSuffixForm):
     comment_id = forms.IntegerField()
 
 
-class ReorderBadgesForm(forms.Form):
+class ReorderBadgesForm(NoLabelSuffixForm):
     badge_id = forms.IntegerField()
     position = forms.IntegerField()

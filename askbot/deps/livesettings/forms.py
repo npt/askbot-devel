@@ -1,12 +1,13 @@
 import logging
 from django import forms
 from django.conf import settings as django_settings
+from askbot.utils.forms import NoLabelSuffixForm
 from askbot.deps.livesettings import ConfigurationGroup
 
 log = logging.getLogger('configuration')
 
 
-class SettingsEditor(forms.Form):
+class SettingsEditor(NoLabelSuffixForm):
     "Base editor, from which customized forms are created"
 
     def __init__(self, *args, **kwargs):
