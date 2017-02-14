@@ -41,7 +41,6 @@ REQUIREMENTS = {
     'captcha': 'django-recaptcha>=1.0.3,<=1.0.5',
     'cas': 'python-cas==1.1.0',
     'requirements': 'requirements-parser==0.1.0',
-    'robots': 'django-robots==1.1',
     'regex': 'regex',
     'sanction': 'sanction==0.3.1',
     'simplejson': 'simplejson<=3.8.2',

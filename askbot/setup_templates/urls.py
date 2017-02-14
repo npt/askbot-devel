@@ -32,7 +32,6 @@ urlpatterns += patterns('',
     #(r'^settings/', include('askbot.deps.livesettings.urls')),
     (r'^followit/', include('followit.urls')),
     (r'^tinymce/', include('tinymce.urls')),
-    (r'^robots.txt$', include('robots.urls')),
     url( # TODO: replace with django.conf.urls.static ?
         r'^%s(?P<path>.*)$' % settings.MEDIA_URL[1:],
         'django.views.static.serve',
