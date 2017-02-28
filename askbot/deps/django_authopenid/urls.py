@@ -42,6 +42,7 @@ urlpatterns = patterns('askbot.deps.django_authopenid.views',
         name='user_complete_oauth2_signin'
     ),
     url(r'^%s$' % pgettext('urls', 'register/'), 'register', name='user_register'),
+    url(r'^%s$' % pgettext('urls', 'accept/'), 'accept', name='invite_accept'),
     url(
         r'^%s$' % pgettext('urls', 'signup/'),
         'signup_with_password',

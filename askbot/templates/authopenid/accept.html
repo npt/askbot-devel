@@ -1,0 +1,58 @@
+{% extends "two_column_body.html" %}
+{% import "authopenid/authopenid_macros.html" as login_macros %}
+<!-- accept.html -->
+{% block title %}{% spaceless %}{% trans %}Accept invite{% endtrans %}{% endspaceless %}{% endblock %}
+{% block body_class %}registration-page{% endblock %}
+{% block forestyle %}
+    <link rel="stylesheet" type="text/css" media="screen" href="{{ "/style/openid.css"|media }}"/>
+{% endblock %}
+{% block content %}
+{% if not code_present %}
+    <h1 class="section_title">No invite code</h1>
+    <p class="error">
+        This page must be accessed from an invite link.
+    </p>
+{% elif not code_good %}
+    <h1 class="section_title">Bad invite code</h1>
+    <p class="error">
+        Invite code is unreadable. Maybe the link was truncated?
+    </p>
+{% elif not is_available %}
+    <h1 class="section_title">User or email taken</h1>
+    <p class="error">
+        The username {{username}} or email {{email}} is already in use. Maybe you already accepted?
+    </p>
+{% else %}
+    <h1 class="section_title">Accept invitation</h1>
+    <form id="accept-form" action="{% url invite_accept %}" method="post">{% csrf_token %}
+        <input type="hidden" name="invite_code" value="{{ invite_code|escape }}" />
+        <div class="form-group">
+            Your username: <strong>{{ username }}</strong>
+        </div>
+        <div class="form-group">
+            Your email: <strong>{{ email }}</strong>
+        </div>
+        <div class="form-group">
+            {{ form.password1.errors }}
+            <input class="required login" id="id_password1"
+                name="password1" type="password"
+                {% if form.password1.value() %}
+                    value="{{ form.password1.value()|escape }}"
+                {% endif %}
+                placeholder="{% trans %}Password{% endtrans %}"
+            >
+        </div>
+        <div class="form-group">
+            {{ form.password2.errors }}
+            <input class="required login" id="id_password2"
+                name="password2" type="password"
+                {% if form.password2.value() %}
+                    value="{{ form.password2.value()|escape }}"
+                {% endif %}
+                placeholder="{% trans %}Password retyped{% endtrans %}"
+            >
+        </div>
+        <input id="accept-button" type="submit" class="button" value="{% trans %}Create account{% endtrans %}" />
+    </form>
+{% endif %}
+{% endblock %}

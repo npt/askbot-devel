@@ -53,6 +53,7 @@ from django.utils.html import escape
 from django.utils.translation import ugettext as _
 from django.utils.safestring import mark_safe
 import simplejson
+from askbot import invites
 from askbot.mail.messages import EmailValidation
 from askbot.utils import decorators as askbot_decorators
 from askbot.utils.functions import format_setting_name
@@ -89,7 +90,7 @@ from askbot.deps.django_authopenid.models import UserAssociation, UserEmailVerif
 from askbot.deps.django_authopenid import forms
 from askbot.deps.django_authopenid.backends import AuthBackend
 import logging
-from askbot.utils.forms import get_next_url
+from askbot.utils.forms import SetPasswordForm, get_next_url
 from askbot.utils.http import get_request_info
 from askbot.signals import user_logged_in, user_registered
 
@@ -1497,3 +1498,55 @@ def recover_account(request):
             return render(request, 'authopenid/recover_account.html', data)
 
         return HttpResponseRedirect(get_next_url(request))
+
+@not_authenticated
+@csrf.csrf_protect
+def accept(request):
+    invite_code = request.REQUEST.get('invite_code', None)
+    code_present = invite_code is not None
+    if code_present:
+        try:
+            username, email = invites.token_to_invite(invite_code)
+        except invites.TokenError:
+            logging.warn('TokenError', exc_info=1)
+            code_good = False
+            username = email = None
+        else:
+            code_good = True
+
+    else:
+        code_good = False
+        username = email = None
+
+    if code_good:
+        is_available = ((User.objects.filter(username__iexact=username)
+                        | User.objects.filter(email__iexact=email)).count() == 0)
+    else:
+        is_available = True
+
+    if request.method == 'POST' and code_good and is_available:
+        # do accept
+        password_form = SetPasswordForm(request.POST)
+        if password_form.is_valid():
+            password = password_form.cleaned_data['password1']
+            user = create_authenticated_user_account(
+                username=username,
+                email=email,
+                password=password,
+            )
+            login(request, user)
+            return HttpResponseRedirect(get_next_url(request))
+
+    else:
+        password_form = SetPasswordForm()
+
+    data = {
+        'invite_code': invite_code,
+        'code_present': code_present,
+        'code_good': code_good,
+        'username': username,
+        'email': email,
+        'is_available': is_available,
+        'form': password_form
+    }
+    return render(request, 'authopenid/accept.html', data)
