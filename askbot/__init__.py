@@ -20,7 +20,7 @@ REQUIREMENTS = {
     'bs4': 'beautifulsoup4<=4.4.1',
     'coffin': 'Coffin>=0.3,<=0.3.8',
     'compressor': 'django-compressor>=1.3,<=1.5',
-    'cryptography': 'cryptography',
+    'cryptography': 'cryptography', # TODO condition on invites enabled
     'django': 'django>=1.8,<1.9',
     'django_countries': 'django-countries==3.3',
     'djcelery': 'django-celery>=3.0.11,<=3.1.17',
